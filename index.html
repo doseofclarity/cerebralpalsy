@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Cerebral Palsy – MCN Review | Adele Pillitteri</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        .transition-all { transition: all 0.3s ease; }
+        .recall-mode .reveal-text {
+            background-color: #cbd5e1;
+            color: transparent;
+            border-radius: 0.375rem;
+            padding: 0 0.25rem;
+            cursor: pointer;
+            transition: background-color 0.2s, color 0.2s;
+            box-shadow: inset 0 0 0 1px #94a3b8;
+        }
+        .recall-mode .reveal-text:hover,
+        .recall-mode .reveal-text.revealed {
+            background-color: #d9f99d;
+            color: #1e293b;
+            box-shadow: none;
+        }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #65a30d; border-radius: 8px; }
+        .content-section { animation: fade 0.3s ease; }
+        @keyframes fade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        .quiz-feedback-correct { background-color: #dcfce7; border-left: 4px solid #22c55e; }
+        .quiz-feedback-wrong { background-color: #fee2e2; border-left: 4px solid #ef4444; }
+        .locked-section { opacity: 0.6; cursor: not-allowed; pointer-events: none; }
+        .flashcard { background: #fff; border-radius: 1rem; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); transition: transform 0.2s; cursor: pointer; border: 1px solid #e2e8f0; }
+        .flashcard:hover { transform: translateY(-5px); }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: { extend: { colors: { cp: { light: '#ecfccb', DEFAULT: '#65a30d', dark: '#4d7c0f' } } } }
+        }
+    </script>
+</head>
+<body class="bg-slate-50 h-screen flex flex-col md:flex-row font-sans text-slate-800 overflow-hidden">
+
+    <!-- Mobile Header -->
+    <div class="md:hidden bg-cp-dark text-white p-4 flex justify-between items-center shadow-md z-30 shrink-0">
+        <button onclick="toggleMobileMenu()" class="text-white focus:outline-none z-40">
+            <i class="fa-solid fa-bars text-2xl"></i>
+        </button>
+        <h1 class="font-bold text-lg absolute left-1/2 transform -translate-x-1/2 pointer-events-none">
+            <i class="fa-solid fa-brain mr-2"></i> Cerebral Palsy
+        </h1>
+        <div class="w-8"></div>
+    </div>
+
+    <!-- Sidebar Navigation -->
+    <nav id="sidebar" class="hidden md:flex flex-col w-full md:w-80 bg-white shadow-2xl h-full absolute md:relative z-30 transition-transform duration-300 shrink-0 border-r border-slate-200">
+        <div class="p-6 bg-gradient-to-br from-cp-dark to-cp text-white hidden md:block shrink-0">
+            <h1 class="font-black text-2xl tracking-wide"><i class="fa-regular fa-hand-peace mr-2"></i> Cerebral Palsy</h1>
+            <p class="text-sm text-lime-200 mt-1 font-medium">MCN · Pillitteri · Neurodevelopmental Disorder</p>
+        </div>
+        <div class="flex-1 overflow-y-auto py-4">
+            <ul class="space-y-1 text-sm font-medium">
+                <li><button onclick="showSection('home')" id="btn-home" class="nav-btn w-full text-left px-6 py-3 bg-cp-light text-cp-dark border-r-4 border-cp-dark transition-colors"><i class="fa-solid fa-house w-6 nav-icon"></i><i class="fa-solid fa-lock w-6 hidden"></i> Home / Start</button></li>
+                <li><button onclick="showSection('definition')" id="btn-definition" class="nav-btn w-full text-left px-6 py-3 text-slate-700 hover:bg-slate-50 transition-colors locked-section"><i class="fa-solid fa-book-open w-6 nav-icon hidden"></i><i class="fa-solid fa-lock w-6 text-slate-400"></i> Definition & Epidemiology</button></li>
+                <li><button onclick="showSection('etiology')" id="btn-etiology" class="nav-btn w-full text-left px-6 py-3 text-slate-700 hover:bg-slate-50 transition-colors locked-section"><i class="fa-solid fa-chart-line w-6 nav-icon hidden"></i><i class="fa-solid fa-lock w-6 text-slate-400"></i> Etiology & Risk Factors</button></li>
+                <li><button onclick="showSection('types')" id="btn-types" class="nav-btn w-full text-left px-6 py-3 text-slate-700 hover:bg-slate-50 transition-colors locked-section"><i class="fa-solid fa-list w-6 nav-icon hidden"></i><i class="fa-solid fa-lock w-6 text-slate-400"></i> Classification & Clinical Features</button></li>
+                <li><button onclick="showSection('diagnosis')" id="btn-diagnosis" class="nav-btn w-full text-left px-6 py-3 text-slate-700 hover:bg-slate-50 transition-colors locked-section"><i class="fa-solid fa-stethoscope w-6 nav-icon hidden"></i><i class="fa-solid fa-lock w-6 text-slate-400"></i> Diagnosis & Associated Conditions</button></li>
+                <li><button onclick="showSection('management')" id="btn-management" class="nav-btn w-full text-left px-6 py-3 text-slate-700 hover:bg-slate-50 transition-colors locked-section"><i class="fa-solid fa-capsules w-6 nav-icon hidden"></i><i class="fa-solid fa-lock w-6 text-slate-400"></i> Management & Therapies</button></li>
+                <li><button onclick="showSection('nursing')" id="btn-nursing" class="nav-btn w-full text-left px-6 py-3 text-slate-700 hover:bg-slate-50 transition-colors locked-section"><i class="fa-solid fa-user-nurse w-6 nav-icon hidden"></i><i class="fa-solid fa-lock w-6 text-slate-400"></i> Nursing Care & Family Support</button></li>
+                <li><button onclick="showSection('prognosis')" id="btn-prognosis" class="nav-btn w-full text-left px-6 py-3 text-slate-700 hover:bg-slate-50 transition-colors locked-section"><i class="fa-solid fa-chart-simple w-6 nav-icon hidden"></i><i class="fa-solid fa-lock w-6 text-slate-400"></i> Long‑Term Outcomes & Prevention</button></li>
+                <li><button onclick="showSection('flashcards')" id="btn-flashcards" class="nav-btn w-full text-left px-6 py-3 text-slate-700 hover:bg-slate-50 transition-colors border-t border-slate-200 mt-2 locked-section"><i class="fa-solid fa-cards w-6 text-cp nav-icon hidden"></i><i class="fa-solid fa-lock w-6 text-slate-400"></i> Flashcards & Mnemonics</button></li>
+                <li><button onclick="showSection('final_quiz_sec')" id="btn-final_quiz_sec" class="nav-btn w-full text-left px-6 py-3 text-slate-700 hover:bg-slate-50 transition-colors locked-section"><i class="fa-solid fa-graduation-cap w-6 text-amber-500 nav-icon hidden"></i><i class="fa-solid fa-lock w-6 text-slate-400"></i> Final 50‑Item Exam</button></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="flex-1 h-full overflow-y-auto bg-slate-100 relative w-full">
+        <div class="fixed top-16 md:top-4 right-4 md:right-8 z-40 flex items-center bg-white/90 backdrop-blur px-4 py-3 rounded-full shadow-lg border border-slate-200 cursor-pointer hover:bg-slate-50 transition-colors" onclick="toggleRecallMode()">
+            <span class="mr-3 text-sm font-bold text-slate-700 hidden md:inline"><i class="fa-solid fa-brain text-cp mr-1"></i> Active Recall</span>
+            <button id="recall-toggle" class="w-12 h-6 bg-slate-300 rounded-full relative transition-colors duration-300 focus:outline-none shadow-inner pointer-events-none">
+                <div id="recall-knob" class="w-5 h-5 bg-white rounded-full absolute top-0.5 left-0.5 transition-transform duration-300 shadow"></div>
+            </button>
+        </div>
+
+        <div class="p-4 md:p-8 max-w-6xl mx-auto pb-32">
+            <!-- HOME SECTION -->
+            <section id="home" class="content-section flex flex-col items-center justify-center min-h-[80vh] text-center block">
+                <div class="bg-gradient-to-br from-slate-800 to-cp-dark text-white rounded-3xl shadow-2xl p-10 md:p-16 w-full relative overflow-hidden">
+                    <div class="absolute top-0 right-0 -mt-10 -mr-10 text-white opacity-5 pointer-events-none"><i class="fa-solid fa-child text-[20rem]"></i></div>
+                    <div class="relative z-10">
+                        <div class="bg-white/10 backdrop-blur-sm inline-block p-4 rounded-full text-lime-300 mb-6 shadow-sm border border-white/20">
+                            <i class="fa-solid fa-book-open text-5xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-300 mb-2 uppercase tracking-widest">Maternal & Child Health Nursing</h3>
+                        <h1 class="text-4xl md:text-6xl font-black text-white mb-6 leading-tight drop-shadow-md">Cerebral Palsy</h1>
+                        <div class="bg-white/10 backdrop-blur inline-block px-6 py-3 rounded-full mb-10 border border-white/20">
+                            <p class="text-lg text-white font-medium">Classification · Management · Nursing Care | <strong>Adele Pillitteri, 7e</strong></p>
+                        </div>
+                        <button onclick="unlockFirstSection()" class="bg-slate-600 hover:bg-slate-500 text-white font-black py-4 px-10 rounded-full shadow-xl transition-transform hover:scale-105 text-lg flex items-center mx-auto focus:outline-none">
+                            Begin Module <i class="fa-solid fa-arrow-right ml-3"></i>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 1. DEFINITION & EPIDEMIOLOGY -->
+            <section id="definition" class="content-section hidden">
+                <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8">
+                    <h2 class="text-3xl font-black text-slate-800 mb-4 border-b-2 border-cp pb-3"><i class="fa-solid fa-book-open text-cp mr-4"></i> Definition & Epidemiology</h2>
+                    <p><strong>Cerebral palsy (CP)</strong> – a group of permanent disorders of movement and posture caused by non‑progressive disturbances in the developing fetal or infant brain. It is the most common motor disability in childhood. Incidence ~2‑3 per 1000 live births. In the Philippines, CP is a leading cause of childhood disability.</p>
+                    <div class="grid md:grid-cols-2 gap-5 mt-4">
+                        <div class="bg-slate-50 p-4 rounded-xl"><strong>📊 Key Facts</strong><br><span class="reveal-text">• Prevalence has remained stable over decades.<br>• Males are slightly more affected.<br>• Many children have associated impairments (intellectual disability, epilepsy, vision/hearing problems).</span></div>
+                        <div class="bg-slate-50 p-4 rounded-xl"><strong>🧠 Important</strong><br><span class="reveal-text">CP is <strong>non‑progressive</strong> – the brain lesion does not worsen, but clinical manifestations may change with growth.</span></div>
+                    </div>
+                    <canvas id="cpChart" width="400" height="200" style="max-width:100%; margin-top:1rem;"></canvas>
+                    <div class="bg-amber-50 p-3 rounded-lg mt-4"><strong>⚠️ Early recognition and intervention maximize functional outcomes.</strong></div>
+                    <button onclick="openQuiz('definition')" class="mt-6 w-full bg-slate-800 text-white font-black py-3 rounded-xl">Take Quiz → Unlock Next</button>
+                </div>
+            </section>
+
+            <!-- 2. ETIOLOGY & RISK FACTORS -->
+            <section id="etiology" class="content-section hidden">
+                <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8">
+                    <h2 class="text-3xl font-black text-slate-800 mb-4 border-b-2 border-cp pb-3"><i class="fa-solid fa-chart-line text-cp mr-4"></i> Etiology & Risk Factors</h2>
+                    <div class="grid md:grid-cols-2 gap-5">
+                        <div class="bg-red-50 p-4 rounded-xl"><strong>⚠️ Prenatal (70‑80%)</strong><br><span class="reveal-text">• Congenital brain malformations<br>• Intrauterine infections (CMV, toxoplasmosis)<br>• Genetic mutations<br>• Placental insufficiency<br>• Maternal thyroid disease, seizures</span></div>
+                        <div class="bg-blue-50 p-4 rounded-xl"><strong>⚠️ Perinatal & Postnatal</strong><br><span class="reveal-text">• Prematurity (most important risk factor)<br>• Intraventricular hemorrhage<br>• Periventricular leukomalacia (PVL)<br>• Hypoxic‑ischemic encephalopathy (term)<br>• Kernicterus (severe jaundice)<br>• Meningitis, trauma, stroke</span></div>
+                    </div>
+                    <div class="bg-yellow-50 p-3 rounded-lg mt-4"><strong>📌 Most common risk factor:</strong> <span class="reveal-text">Preterm birth (especially <28 weeks).</span></div>
+                    <button onclick="openQuiz('etiology')" class="mt-6 w-full bg-slate-800 text-white font-black py-3 rounded-xl">Take Quiz → Unlock Next</button>
+                </div>
+            </section>
+
+            <!-- 3. CLASSIFICATION & CLINICAL FEATURES -->
+            <section id="types" class="content-section hidden">
+                <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8">
+                    <h2 class="text-3xl font-black text-slate-800 mb-4 border-b-2 border-cp pb-3"><i class="fa-solid fa-list text-cp mr-4"></i> Classification & Clinical Features</h2>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm border-collapse border">
+                            <thead class="bg-cp text-white"><tr><th class="p-2">Type</th><th class="p-2">Characteristics</th><th class="p-2">% of CP</th></tr></thead>
+                            <tbody>
+                                <tr class="bg-slate-50"><td class="border p-2 font-bold">Spastic</td><td class="reveal-text">Increased muscle tone, hyperreflexia, clonus, scissoring gait; most common type. Subtypes: hemiplegia, diplegia, quadriplegia.</td><td class="reveal-text">~80%</td></tr>
+                                <tr><td class="border p-2 font-bold">Dyskinetic</td><td class="reveal-text">Involuntary, uncontrolled movements (athetosis, chorea, dystonia). Often due to kernicterus or HIE.</td><td class="reveal-text">~10%</td></tr>
+                                <tr class="bg-slate-50"><td class="border p-2 font-bold">Ataxic</td><td class="reveal-text">Poor balance, uncoordinated gait, intention tremor; often cerebellar damage.</td><td class="reveal-text">~5%</td></tr>
+                                <tr><td class="border p-2 font-bold">Mixed</td><td class="reveal-text">Combination of spastic and dyskinetic features.</td><td class="reveal-text">~5%</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="bg-indigo-50 p-3 rounded-lg mt-4"><i class="fa-regular fa-message"></i> <strong>Spastic diplegia:</strong> Legs > arms, often in preterm infants (periventricular leukomalacia).</div>
+                    <button onclick="openQuiz('types')" class="mt-6 w-full bg-slate-800 text-white font-black py-3 rounded-xl">Take Quiz → Unlock Next</button>
+                </div>
+            </section>
+
+            <!-- 4. DIAGNOSIS & ASSOCIATED CONDITIONS -->
+            <section id="diagnosis" class="content-section hidden">
+                <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8">
+                    <h2 class="text-3xl font-black text-slate-800 mb-4 border-b-2 border-cp pb-3"><i class="fa-solid fa-stethoscope text-cp mr-4"></i> Diagnosis & Associated Conditions</h2>
+                    <ul class="list-disc pl-6 space-y-2">
+                        <li><strong>Diagnosis:</strong> <span class="reveal-text">Clinical diagnosis based on motor milestones and neurological exam. Standardized tools: GMFCS (Gross Motor Function Classification System). Imaging: MRI brain (detects PVL, malformations, stroke).</span></li>
+                        <li><strong>Associated comorbidities:</strong> <span class="reveal-text">Intellectual disability (30‑50%), epilepsy (25‑40%), vision problems (strabismus, cortical visual impairment), hearing loss, feeding difficulties/GERD, constipation, hip subluxation, scoliosis.</span></li>
+                    </ul>
+                    <div class="bg-blue-50 p-3 rounded-lg mt-4"><i class="fa-regular fa-lightbulb"></i> <strong>GMFCS</strong> – classifies gross motor function from I (walks without restrictions) to V (wheelchair dependent).</div>
+                    <button onclick="openQuiz('diagnosis')" class="mt-6 w-full bg-slate-800 text-white font-black py-3 rounded-xl">Take Quiz → Unlock Next</button>
+                </div>
+            </section>
+
+            <!-- 5. MANAGEMENT & THERAPIES -->
+            <section id="management" class="content-section hidden">
+                <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8">
+                    <h2 class="text-3xl font-black text-slate-800 mb-4 border-b-2 border-cp pb-3"><i class="fa-solid fa-capsules text-cp mr-4"></i> Management & Therapies</h2>
+                    <div class="grid md:grid-cols-2 gap-5">
+                        <div><strong>🧩 Therapies</strong><br><span class="reveal-text">• Physical therapy (stretching, strengthening, gait)<br>• Occupational therapy (ADLs, fine motor)<br>• Speech therapy (communication, swallowing)<br>• Orthotics (AFOs, braces)<br>• Intrathecal baclofen pump for severe spasticity</span></div>
+                        <div><strong>💊 Medications & Surgery</strong><br><span class="reveal-text">• Oral medications: baclofen, tizanidine, diazepam<br>• Botulinum toxin (Botox) for focal spasticity<br>• Orthopedic surgeries: tendon releases, hip reconstruction, scoliosis correction<br>• Selective dorsal rhizotomy (SDR) for spastic diplegia</span></div>
+                    </div>
+                    <div class="bg-green-50 p-3 rounded-lg mt-4"><i class="fa-regular fa-hospital"></i> <strong>Multidisciplinary team:</strong> Developmental pediatrician, physiatrist, PT/OT/ST, orthopedist, neurologist.</div>
+                    <button onclick="openQuiz('management')" class="mt-6 w-full bg-slate-800 text-white font-black py-3 rounded-xl">Take Quiz → Unlock Next</button>
+                </div>
+            </section>
+
+            <!-- 6. NURSING CARE & FAMILY SUPPORT -->
+            <section id="nursing" class="content-section hidden">
+                <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8">
+                    <h2 class="text-3xl font-black text-slate-800 mb-4 border-b-2 border-cp pb-3"><i class="fa-solid fa-user-nurse text-cp mr-4"></i> Nursing Care & Family Support</h2>
+                    <ul class="list-disc pl-6 space-y-2">
+                        <li><strong>Promote mobility:</strong> <span class="reveal-text">Positioning, ROM exercises, use of adaptive equipment (wheelchair, stander).</span></li>
+                        <li><strong>Nutrition/feeding:</strong> <span class="reveal-text">Assess for dysphagia; upright feeding; consider gastrostomy tube if severe.</span></li>
+                        <li><strong>Bowel and bladder:</strong> <span class="reveal-text">Constipation management (fiber, fluids, stool softeners); assess for urinary retention/incontinence.</span></li>
+                        <li><strong>Skin integrity:</strong> <span class="reveal-text">Pressure relief, special mattresses, regular repositioning.</span></li>
+                        <li><strong>Seizure management:</strong> <span class="reveal-text">Antiepileptic medications, safety precautions.</span></li>
+                        <li><strong>Family support:</strong> <span class="reveal-text">Provide resources, respite care, counseling; encourage early intervention programs; address sibling needs.</span></li>
+                    </ul>
+                    <div class="bg-pink-50 p-3 rounded-lg mt-4"><i class="fa-regular fa-heart"></i> <strong>Mnemonic “C.A.R.E.”</strong> – Comfort, Activities, Rehabilitation, Education.</div>
+                    <button onclick="openQuiz('nursing')" class="mt-6 w-full bg-slate-800 text-white font-black py-3 rounded-xl">Take Quiz → Unlock Next</button>
+                </div>
+            </section>
+
+            <!-- 7. LONG‑TERM OUTCOMES & PREVENTION -->
+            <section id="prognosis" class="content-section hidden">
+                <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8">
+                    <h2 class="text-3xl font-black text-slate-800 mb-4 border-b-2 border-cp pb-3"><i class="fa-solid fa-chart-simple text-cp mr-4"></i> Long‑Term Outcomes & Prevention</h2>
+                    <ul class="list-disc pl-6 space-y-2">
+                        <li><strong>Prognosis:</strong> <span class="reveal-text">Varies widely – many individuals lead productive lives with appropriate support. Independent walking is achieved by about 50% of children with CP. Life expectancy is near normal for mild/moderate CP.</span></li>
+                        <li><strong>Prevention strategies:</strong> <span class="reveal-text">• Antenatal: folic acid, avoid infections, manage maternal health.<br>• Perinatal: prevention of prematurity (progesterone, cervical cerclage), magnesium sulfate for neuroprotection, therapeutic hypothermia for HIE.<br>• Postnatal: prevent kernicterus (phototherapy), head trauma prevention.</span></li>
+                    </ul>
+                    <div class="bg-amber-50 p-3 rounded-lg mt-4"><strong>🌟 Quality of life:</strong> <span class="reveal-text">With multidisciplinary care, many individuals with CP attend school, work, and live independently or semi‑independently.</span></div>
+                    <button onclick="openQuiz('prognosis')" class="mt-6 w-full bg-slate-800 text-white font-black py-3 rounded-xl">Take Quiz → Unlock Next</button>
+                </div>
+            </section>
+
+            <!-- 8. FLASHCARDS & MNEMONICS -->
+            <section id="flashcards" class="content-section hidden">
+                <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8">
+                    <h2 class="text-3xl font-black text-slate-800 mb-4 border-b-2 border-cp pb-3"><i class="fa-solid fa-cards text-cp mr-4"></i> Flashcards & Mnemonics</h2>
+                    <div class="grid md:grid-cols-2 gap-5">
+                        <div class="flashcard p-4" onclick="toggleFlash(this)"><div class="font-bold text-cp">Q: Define cerebral palsy</div><div class="flash-answer hidden mt-2">Non‑progressive disorder of movement/posture due to brain injury in early development</div></div>
+                        <div class="flashcard p-4" onclick="toggleFlash(this)"><div class="font-bold text-cp">Q: Most common type?</div><div class="flash-answer hidden mt-2">Spastic (80%)</div></div>
+                        <div class="flashcard p-4" onclick="toggleFlash(this)"><div class="font-bold text-cp">Q: Most important risk factor?</div><div class="flash-answer hidden mt-2">Prematurity (<28 weeks)</div></div>
+                        <div class="flashcard p-4" onclick="toggleFlash(this)"><div class="font-bold text-cp">Q: Spastic diplegia is common in?</div><div class="flash-answer hidden mt-2">Preterm infants (periventricular leukomalacia)</div></div>
+                        <div class="flashcard p-4" onclick="toggleFlash(this)"><div class="font-bold text-cp">Q: What is GMFCS?</div><div class="flash-answer hidden mt-2">Gross Motor Function Classification System (I to V)</div></div>
+                        <div class="flashcard p-4" onclick="toggleFlash(this)"><div class="font-bold text-cp">Q: Treatment for focal spasticity?</div><div class="flash-answer hidden mt-2">Botulinum toxin (Botox) injections</div></div>
+                    </div>
+                    <div class="mt-6 bg-lime-50 p-4 rounded-xl"><strong>🧠 Mnemonics</strong><br><span class="reveal-text">“S.D.A.M.” – Spastic, Dyskinetic, Ataxic, Mixed (types).<br>“P.I.P.” – Prenatal (most common timing), Intrapartum, Postnatal causes.<br>“C.A.R.E.” – Comfort, Activities, Rehabilitation, Education.<br>“GMFCS” – Gross Motor Function Classification System.</span></div>
+                    <button onclick="openQuiz('flashcards')" class="mt-6 w-full bg-slate-800 text-white font-black py-3 rounded-xl">Take Quiz → Unlock Final Exam</button>
+                </div>
+            </section>
+
+            <!-- FINAL EXAM SECTION -->
+            <section id="final_quiz_sec" class="content-section hidden">
+                <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 text-center min-h-[60vh] flex flex-col justify-center items-center">
+                    <i class="fa-solid fa-graduation-cap text-8xl text-amber-500 mb-6"></i>
+                    <h2 class="text-4xl font-black text-slate-800 mb-4">Final 50‑Item Exam: Cerebral Palsy</h2>
+                    <p class="text-lg text-slate-600 mb-8 max-w-2xl">Covers definition, epidemiology, etiology, classification, diagnosis, management, nursing care, long‑term outcomes, and mnemonics. Score ≥75% to pass.</p>
+                    <button onclick="openQuiz('final_quiz')" class="w-full max-w-md bg-slate-800 text-white font-black py-4 rounded-xl shadow-md text-xl">Start Final Exam</button>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- QUIZ MODAL -->
+    <div id="quiz-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-slate-900/80 backdrop-blur-sm p-4">
+        <div class="bg-white w-full max-w-3xl rounded-2xl shadow-2xl p-6 md:p-8 relative max-h-[90vh] overflow-y-auto">
+            <button onclick="closeQuiz()" class="absolute top-4 right-4 text-slate-400 hover:text-red-500"><i class="fa-solid fa-xmark text-2xl"></i></button>
+            <h2 id="quiz-title" class="text-3xl font-black text-slate-800 mb-2"></h2>
+            <div id="quiz-questions-container" class="space-y-4 mt-4"></div>
+            <button id="quiz-submit-btn" onclick="submitQuiz()" class="mt-8 w-full bg-cp text-white font-bold py-4 rounded-xl shadow-lg">Submit Answers</button>
+            <div id="quiz-result-container" class="hidden mt-6 p-4 rounded-xl bg-slate-100"></div>
+        </div>
+    </div>
+
+    <script>
+        let unlockedSections = ['home'];
+        // QUIZZES (10 questions each)
+        const quizzes = {
+            definition: { title: "Definition & Epidemiology", next: "etiology", questions: [
+                { q: "Cerebral palsy is best described as:", options: ["Progressive neurodegenerative disorder", "Non‑progressive disorder of movement and posture", "Acute brain injury", "Muscle disease"], ans: 1 },
+                { q: "Incidence of CP is approximately:", options: ["1 per 1000", "2‑3 per 1000", "5 per 1000", "10 per 1000"], ans: 1 },
+                { q: "Which statement about CP is TRUE?", options: ["It always causes intellectual disability", "It is non‑progressive", "Only affects legs", "Always diagnosed at birth"], ans: 1 },
+                { q: "The most common motor disability in childhood is:", options: ["Muscular dystrophy", "Cerebral palsy", "Spina bifida", "Spinal cord injury"], ans: 1 },
+                { q: "In the Philippines, CP is a leading cause of:", options: ["Childhood disability", "Hearing loss", "Blindness", "Congenital heart disease"], ans: 0 },
+                { q: "Which gender is slightly more affected?", options: ["Males", "Females", "Equal", "Only firstborn"], ans: 0 },
+                { q: "The brain lesion in CP is:", options: ["Progressive", "Static (non‑progressive)", "Degenerative", "Inflammatory"], ans: 1 },
+                { q: "CP affects approximately what percentage of preterm infants (<1500g)?", options: ["1%", "5‑10%", "20%", "50%"], ans: 1 },
+                { q: "The most common type of CP is:", options: ["Spastic", "Dyskinetic", "Ataxic", "Mixed"], ans: 0 },
+                { q: "CP is diagnosed based on:", options: ["Clinical motor assessment and milestones", "Blood test", "Genetic test", "MRI only"], ans: 0 }
+            ]},
+            etiology: { title: "Etiology & Risk Factors", next: "types", questions: [
+                { q: "The single most important risk factor for CP is:", options: ["Prematurity", "Maternal diabetes", "Post‑term pregnancy", "Cesarean section"], ans: 0 },
+                { q: "Most cases of CP originate:", options: ["Prenatally (70‑80%)", "During birth (intrapartum)", "Postnatally", "Equally"], ans: 0 },
+                { q: "Which prenatal infection is associated with CP?", options: ["CMV", "UTI", "Influenza", "COVID‑19"], ans: 0 },
+                { q: "Periventricular leukomalacia (PVL) is most common in:", options: ["Preterm infants", "Term infants", "Post‑term infants", "Infants with kernicterus"], ans: 0 },
+                { q: "Hypoxic‑ischemic encephalopathy (HIE) in term infants is a cause of:", options: ["CP", "Autism", "Down syndrome", "Cleft lip"], ans: 0 },
+                { q: "Kernicterus, a cause of dyskinetic CP, is due to:", options: ["Severe unconjugated hyperbilirubinemia", "Hypoglycemia", "Infection", "Trauma"], ans: 0 },
+                { q: "Which of the following is a postnatal cause of CP?", options: ["Meningitis", "Intrauterine infection", "Placental insufficiency", "Congenital malformation"], ans: 0 },
+                { q: "Maternal thyroid disease during pregnancy increases risk of CP due to:", options: ["Thyroid hormone imbalance affecting brain development", "Prematurity", "Preeclampsia", "Placental abruption"], ans: 0 },
+                { q: "Preterm infants born at <28 weeks have a CP risk that is:", options: ["5‑10%", "30‑40%", "1%", "0.1%"], ans: 0 },
+                { q: "Which of the following is NOT a risk factor for CP?", options: ["Maternal folic acid supplementation", "Intrauterine infection", "Placental insufficiency", "Maternal seizures"], ans: 0 }
+            ]},
+            types: { title: "Classification & Clinical Features", next: "diagnosis", questions: [
+                { q: "Spastic diplegia primarily affects:", options: ["Legs > arms", "Arms only", "One side of body", "All four limbs equally"], ans: 0 },
+                { q: "The most common type of CP is:", options: ["Spastic", "Dyskinetic", "Ataxic", "Mixed"], ans: 0 },
+                { q: "A child with choreoathetosis and involuntary movements likely has:", options: ["Dyskinetic CP", "Spastic CP", "Ataxic CP", "Mixed CP"], ans: 0 },
+                { q: "Ataxic CP is characterized by:", options: ["Uncoordinated gait, intention tremor", "Increased tone", "Involuntary movements", "Hemiplegia"], ans: 0 },
+                { q: "Spastic hemiplegia affects:", options: ["One side of the body (arm and leg)", "Both legs", "All four limbs", "Only one arm"], ans: 0 },
+                { q: "Scissoring gait (legs crossing) is typical of:", options: ["Spastic diplegia", "Ataxic CP", "Dyskinetic CP", "Hemiplegia"], ans: 0 },
+                { q: "Which type is most often associated with kernicterus?", options: ["Dyskinetic", "Spastic", "Ataxic", "Mixed"], ans: 0 },
+                { q: "Spastic quadriplegia affects:", options: ["All four limbs, often with severe impairment", "Only legs", "Only arms", "One side"], ans: 0 },
+                { q: "Deep tendon reflexes in spastic CP are typically:", options: ["Increased (hyperreflexia)", "Decreased", "Absent", "Normal"], ans: 0 },
+                { q: "An infant with spastic CP may present with:", options: ["Persistent fisting, scissoring, opisthotonos", "Floppy baby", "No motor signs", "Only feeding difficulties"], ans: 0 }
+            ]},
+            diagnosis: { title: "Diagnosis & Associated Conditions", next: "management", questions: [
+                { q: "The gold standard imaging for CP is:", options: ["MRI brain", "CT head", "Ultrasound", "X‑ray skull"], ans: 0 },
+                { q: "GMFCS stands for:", options: ["Gross Motor Function Classification System", "General Motor Function Clinical Score", "Gait Motor Functional Classification System", "None"], ans: 0 },
+                { q: "Intellectual disability occurs in approximately what percentage of children with CP?", options: ["10%", "30‑50%", "70%", "90%"], ans: 1 },
+                { q: "Which of the following is a common associated condition in CP?", options: ["Epilepsy", "Hearing loss", "Strabismus", "All of the above"], ans: 3 },
+                { q: "The GMFCS level I means:", options: ["Walks without restrictions", "Wheelchair dependent", "Uses walker", "Crawls only"], ans: 0 },
+                { q: "A child with CP and persistent feeding difficulties may require:", options: ["Gastrostomy tube", "NPO", "Clear liquids only", "Bowel surgery"], ans: 0 },
+                { q: "Hip subluxation is common in:", options: ["Spastic diplegia/quadriplegia", "Ataxic CP", "Dyskinetic CP", "Hemiplegia"], ans: 0 },
+                { q: "Scoliosis in CP is due to:", options: ["Muscle imbalance and weakness", "Bone abnormality", "Spinal cord injury", "Tumor"], ans: 0 },
+                { q: "Cortical visual impairment (CVI) is:", options: ["Vision problem due to brain damage, not eye", "Eye muscle imbalance", "Refractive error", "Cataract"], ans: 0 },
+                { q: "Which of the following is NOT part of CP diagnosis?", options: ["Spinal cord lesion (progressive)", "Motor delay", "Abnormal muscle tone", "Persistent primitive reflexes"], ans: 0 }
+            ]},
+            management: { title: "Management & Therapies", next: "nursing", questions: [
+                { q: "First‑line treatment for focal spasticity in CP is:", options: ["Botulinum toxin injections", "Oral baclofen", "Selective dorsal rhizotomy", "Physical therapy only"], ans: 0 },
+                { q: "Intrathecal baclofen pump is used for:", options: ["Severe generalized spasticity", "Mild spasticity", "Ataxia", "Seizures"], ans: 0 },
+                { q: "Selective dorsal rhizotomy (SDR) is most beneficial for:", options: ["Spastic diplegia", "Dyskinetic CP", "Ataxic CP", "Hemiplegia"], ans: 0 },
+                { q: "Orthopedic surgeries in CP may include:", options: ["Tendon lengthening, hip reconstruction", "Brain surgery", "Spinal fusion for scoliosis", "Both A and C"], ans: 3 },
+                { q: "Which therapy focuses on activities of daily living (dressing, feeding)?", options: ["Occupational therapy", "Physical therapy", "Speech therapy", "Music therapy"], ans: 0 },
+                { q: "Speech therapy in CP addresses:", options: ["Communication and swallowing", "Only speech clarity", "Only feeding", "Only language"], ans: 0 },
+                { q: "AFOs (ankle‑foot orthoses) are used to:", options: ["Improve gait and prevent contractures", "Treat seizures", "Improve speech", "Manage feeding"], ans: 0 },
+                { q: "Baclofen is a medication that:", options: ["Reduces spasticity", "Increases muscle tone", "Treats seizures", "Improves coordination"], ans: 0 },
+                { q: "A child with CP and hip dislocation may need:", options: ["Surgical reconstruction", "Baclofen pump", "Botox injection", "No treatment"], ans: 0 },
+                { q: "The goal of CP management is:", options: ["Maximize function and quality of life", "Cure the brain lesion", "Normalize MRI", "Achieve independent walking for all"], ans: 0 }
+            ]},
+            nursing: { title: "Nursing Care & Family Support", next: "prognosis", questions: [
+                { q: "To prevent contractures, the nurse should:", options: ["Perform passive range of motion exercises", "Restrict movement", "Apply heat only", "Use splints only"], ans: 0 },
+                { q: "A child with CP and dysphagia should be fed:", options: ["In upright position, thickened feeds if needed", "Lying down", "With regular utensils only", "Without supervision"], ans: 0 },
+                { q: "Constipation in CP is common due to:", options: ["Decreased mobility, medications", "High fiber diet", "Hydration", "Exercise"], ans: 0 },
+                { q: "The mnemonic 'C.A.R.E.' for nursing care stands for:", options: ["Comfort, Activities, Rehabilitation, Education", "Chest, Abdomen, Rectal, Extremities", "Consent, Assessment, Referral, Evaluation", "None"], ans: 0 },
+                { q: "To prevent pressure ulcers, the nurse should:", options: ["Reposition frequently, use pressure‑relieving surfaces", "Keep child supine all day", "Massage bony prominences", "Use only water mattress"], ans: 0 },
+                { q: "Family support includes:", options: ["Respite care, support groups, counseling", "Only medical care", "Only financial aid", "No support"], ans: 0 },
+                { q: "When a child with CP has a seizure, the nurse should:", options: ["Protect airway, time seizure, administer rescue medication if prescribed", "Restrain child", "Put object in mouth", "Ignore"], ans: 0 },
+                { q: "Skin assessment in a child with a brace or orthosis is important to detect:", options: ["Pressure areas, redness, breakdown", "Infection", "Pain only", "None"], ans: 0 },
+                { q: "The nurse should teach parents to monitor for:", options: ["Signs of hip subluxation (pain, limited range)", "Weight gain", "Improved speech", "None"], ans: 0 },
+                { q: "Which statement best describes the role of early intervention?", options: ["Improves developmental outcomes and reduces secondary complications", "Only helps with physical therapy", "Is unnecessary", "Delays diagnosis"], ans: 0 }
+            ]},
+            prognosis: { title: "Long‑Term Outcomes & Prevention", next: "flashcards", questions: [
+                { q: "Approximately what percentage of individuals with CP achieve independent walking?", options: ["25%", "50%", "80%", "95%"], ans: 1 },
+                { q: "Life expectancy for mild/moderate CP is:", options: ["Near normal", "Greatly reduced", "Normal only with treatment", "Reduced by 20 years"], ans: 0 },
+                { q: "Which preventive measure reduces risk of CP in preterm labor?", options: ["Magnesium sulfate for neuroprotection", "Corticosteroids only", "Antibiotics", "Hydration"], ans: 0 },
+                { q: "Therapeutic hypothermia for term infants with HIE:", options: ["Reduces risk of death and CP", "Has no effect", "Increases CP risk", "Only used for preterm"], ans: 0 },
+                { q: "Antenatal prevention of CP includes:", options: ["Folic acid, treat maternal infections, avoid teratogens", "Bed rest", "Vitamin C", "None"], ans: 0 },
+                { q: "Phototherapy for neonatal jaundice prevents:", options: ["Kernicterus (a cause of dyskinetic CP)", "Prematurity", "Hypoglycemia", "Sepsis"], ans: 0 },
+                { q: "Most children with CP will:", options: ["Attend school and many become productive adults", "Never walk", "Always require institutional care", "Have severe intellectual disability"], ans: 0 },
+                { q: "The leading cause of death in severe CP is often:", options: ["Respiratory complications (aspiration, pneumonia)", "Seizures", "Accidents", "Congenital heart disease"], ans: 0 },
+                { q: "Which of the following is a modifiable risk factor for CP?", options: ["Maternal hypothyroidism (treatable)", "Male gender", "Genetic mutation", "Preterm birth (partially preventable)"], ans: 3 },
+                { q: "Prevention of CP in preterm infants includes:", options: ["Antenatal corticosteroids, magnesium sulfate, prevention of IVH", "Delayed cord clamping only", "Caffeine only", "None"], ans: 0 }
+            ]},
+            flashcards: { title: "Flashcards & Mnemonics", next: "final_quiz_sec", questions: [
+                { q: "The mnemonic for CP types is:", options: ["S.D.A.M.", "C.A.R.E.", "G.M.F.C.S.", "P.I.P."], ans: 0 },
+                { q: "In S.D.A.M., 'D' stands for:", options: ["Dyskinetic", "Diplegia", "Developmental", "Delay"], ans: 0 },
+                { q: "The mnemonic for causes is:", options: ["P.I.P.", "S.D.A.M.", "C.A.R.E.", "G.M.F.C.S."], ans: 0 },
+                { q: "In P.I.P., the first 'P' stands for:", options: ["Prenatal", "Postnatal", "Preterm", "Placental"], ans: 0 },
+                { q: "The mnemonic for nursing care is:", options: ["C.A.R.E.", "S.D.A.M.", "P.I.P.", "G.M.F.C.S."], ans: 0 },
+                { q: "In C.A.R.E., 'R' stands for:", options: ["Rehabilitation", "Resuscitation", "Rest", "Record"], ans: 0 },
+                { q: "GMFCS is used to classify:", options: ["Gross motor function", "Fine motor skills", "Cognitive level", "Speech"], ans: 0 },
+                { q: "A flashcard for 'most common type of CP' answer is:", options: ["Spastic", "Dyskinetic", "Ataxic", "Mixed"], ans: 0 },
+                { q: "A flashcard for 'treatment for severe spasticity' answer is:", options: ["Intrathecal baclofen", "Botox", "Oral baclofen", "Physical therapy"], ans: 0 },
+                { q: "The flashcard for 'GMFCS level I' answer is:", options: ["Walks without restrictions", "Wheelchair dependent", "Uses walker", "Crawls only"], ans: 0 }
+            ]}
+        };
+        // Build final 50-item exam
+        let finalQ = [];
+        for(let sec of ['definition','etiology','types','diagnosis','management','nursing','prognosis','flashcards']) {
+            finalQ.push(...quizzes[sec].questions.slice(0,6));
+        }
+        while(finalQ.length < 50) finalQ.push({ q: "The most important factor for improving functional outcomes in CP is:", options: ["Early and intensive multidisciplinary intervention", "Medication only", "Surgery", "Dietary supplements"], ans: 0 });
+        quizzes.final_quiz = { title: "Final 50‑Item Exam: Cerebral Palsy", next: null, questions: finalQ };
+
+        let currentQuiz = null;
+        let cpChart = null;
+
+        function initCpChart() {
+            const ctx = document.getElementById('cpChart')?.getContext('2d');
+            if(ctx && !cpChart) {
+                cpChart = new Chart(ctx, {
+                    type: 'pie',
+                    data: {
+                        labels: ['Spastic (80%)', 'Dyskinetic (10%)', 'Ataxic (5%)', 'Mixed (5%)'],
+                        datasets: [{ data: [80, 10, 5, 5], backgroundColor: ['#65a30d', '#f59e0b', '#3b82f6', '#ef4444'] }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'top' } } }
+                });
+            }
+        }
+
+        function toggleFlash(el) { const ans = el.querySelector('.flash-answer'); if(ans) ans.classList.toggle('hidden'); }
+        function unlockFirstSection() { if(!unlockedSections.includes('definition')) { unlockedSections.push('definition'); updateSidebarUI(); } showSection('definition'); }
+        function showSection(sectionId) {
+            if (!unlockedSections.includes(sectionId) && sectionId !== 'home') { alert("Complete the Active Recall Quiz at the bottom of the previous section to unlock."); return; }
+            document.querySelectorAll('.content-section').forEach(el => el.classList.add('hidden'));
+            document.getElementById(sectionId)?.classList.remove('hidden');
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('bg-cp-light','text-cp-dark','border-r-4','border-cp-dark'));
+            const activeBtn = document.getElementById('btn-'+sectionId);
+            if(activeBtn) activeBtn.classList.add('bg-cp-light','text-cp-dark','border-r-4','border-cp-dark');
+            if(window.innerWidth < 768) document.getElementById('sidebar').classList.add('hidden');
+            if(sectionId === 'definition') setTimeout(initCpChart, 50);
+        }
+        function updateSidebarUI() {
+            const sections = ['home','definition','etiology','types','diagnosis','management','nursing','prognosis','flashcards','final_quiz_sec'];
+            sections.forEach(sec => {
+                const btn = document.getElementById('btn-'+sec);
+                if(!btn) return;
+                const lock = btn.querySelector('.fa-lock'), icon = btn.querySelector('.nav-icon');
+                if(unlockedSections.includes(sec) || sec==='home') { btn.classList.remove('locked-section'); if(lock) lock.classList.add('hidden'); if(icon) icon.classList.remove('hidden'); }
+                else { btn.classList.add('locked-section'); if(lock) lock.classList.remove('hidden'); if(icon) icon.classList.add('hidden'); }
+            });
+        }
+        function openQuiz(sectionId) { currentQuiz = sectionId; const qd = quizzes[sectionId]; if(!qd) return; document.getElementById('quiz-title').innerHTML = qd.title; const container = document.getElementById('quiz-questions-container'); container.innerHTML = ''; qd.questions.forEach((q, idx) => { let html = `<div class="bg-slate-50 p-4 rounded-xl mb-4"><p class="font-bold mb-3">${idx+1}. ${q.q}</p><div class="space-y-2">`; q.options.forEach((opt,oi) => { html += `<label class="flex items-center space-x-3 p-2 rounded-lg hover:bg-white cursor-pointer"><input type="radio" name="q${idx}" value="${oi}" class="form-radio text-cp"><span>${opt}</span></label>`; }); html += `</div><div class="feedback-${idx} text-sm mt-2 hidden"></div></div>`; container.innerHTML += html; }); document.getElementById('quiz-submit-btn').classList.remove('hidden'); document.getElementById('quiz-result-container').classList.add('hidden'); document.getElementById('quiz-modal').classList.remove('hidden'); }
+        function closeQuiz() { document.getElementById('quiz-modal').classList.add('hidden'); }
+        function submitQuiz() {
+            const qd = quizzes[currentQuiz];
+            if(!qd) return;
+            let score = 0;
+            for(let i=0; i<qd.questions.length; i++) {
+                const sel = document.querySelector(`input[name="q${i}"]:checked`);
+                if(sel && parseInt(sel.value)===qd.questions[i].ans) score++;
+                const fbDiv = document.querySelector(`.feedback-${i}`);
+                if(fbDiv){
+                    fbDiv.classList.remove('hidden');
+                    const correctTxt = qd.questions[i].options[qd.questions[i].ans];
+                    if(sel && parseInt(sel.value)===qd.questions[i].ans) { fbDiv.innerHTML='<span class="text-green-700">✓ Correct</span>'; fbDiv.parentElement?.classList.add('quiz-feedback-correct'); }
+                    else { const selectedTxt = sel? qd.questions[i].options[parseInt(sel.value)]:"No answer"; fbDiv.innerHTML=`<span class="text-red-700">✗ Incorrect. Correct: ${correctTxt}. You answered: ${selectedTxt}</span>`; fbDiv.parentElement?.classList.add('quiz-feedback-wrong'); }
+                }
+            }
+            let percent = (score/qd.questions.length)*100;
+            let resultDiv = document.getElementById('quiz-result-container');
+            document.getElementById('quiz-submit-btn').classList.add('hidden');
+            resultDiv.classList.remove('hidden');
+            if(percent>=75){
+                if(currentQuiz==='final_quiz'){ resultDiv.innerHTML=`<div class="text-green-600 text-4xl text-center">🎉 Excellent! Score ${score}/${qd.questions.length} (${percent}%)<br>You mastered Cerebral Palsy</div><button onclick="closeQuiz()" class="mt-4 bg-cp text-white px-6 py-2 rounded-xl">Close</button>`; return; }
+                if(quizzes[currentQuiz].next && !unlockedSections.includes(quizzes[currentQuiz].next)) unlockedSections.push(quizzes[currentQuiz].next);
+                if(quizzes[currentQuiz].next === 'flashcards' && !unlockedSections.includes('final_quiz_sec')) unlockedSections.push('final_quiz_sec');
+                updateSidebarUI();
+                resultDiv.innerHTML=`<div class="text-green-600 text-3xl text-center">✅ Passed! (${score}/${qd.questions.length})</div><button onclick="closeQuiz(); showSection('${quizzes[currentQuiz].next}')" class="mt-4 bg-green-600 text-white px-6 py-2 rounded-xl">Unlock Next Section</button>`;
+            } else { resultDiv.innerHTML=`<div class="text-red-600 text-3xl text-center">❌ Failed: ${score}/${qd.questions.length} (${percent}%)<br>Need 75%</div><button onclick="openQuiz('${currentQuiz}')" class="mt-4 bg-slate-600 text-white px-6 py-2 rounded-xl">Try Again</button>`; }
+        }
+        function toggleRecallMode() { const active = !document.body.classList.contains('recall-mode'); const toggle=document.getElementById('recall-toggle'),knob=document.getElementById('recall-knob'); if(active){ document.body.classList.add('recall-mode'); toggle.classList.add('bg-cp-dark'); knob.classList.add('translate-x-6'); } else { document.body.classList.remove('recall-mode'); toggle.classList.remove('bg-cp-dark'); knob.classList.remove('translate-x-6'); } }
+        function toggleMobileMenu() { const s=document.getElementById('sidebar'); if(s.classList.contains('hidden')) s.classList.remove('hidden','flex','absolute','h-full','z-50'); else s.classList.add('hidden'); }
+        document.addEventListener('DOMContentLoaded', () => { updateSidebarUI(); document.querySelectorAll('.reveal-text').forEach(el => el.addEventListener('click', function(){ if(document.body.classList.contains('recall-mode')) this.classList.toggle('revealed'); })); });
+    </script>
+</body>
+</html>
